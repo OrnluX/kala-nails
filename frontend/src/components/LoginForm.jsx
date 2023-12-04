@@ -1,10 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 
-function LoginForm() {
+// eslint-disable-next-line react/prop-types
+function LoginForm({sendToken}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
 
   const handleLogin = async (e) => {
@@ -18,46 +18,22 @@ function LoginForm() {
         }
       );
       console.log(response.data);
-      if (
-        response.status === 200 &&
-        response.data.message === "Login Exitoso"
-      ) {
-        const token = response.data.token;
+      if (response.status === 200 && response.data.message === "Login Exitoso") {
+        const token = response.data.userData.token;
         localStorage.setItem("token", token);
-        // setIsLoggedIn(true);
+        sendToken(token);
         setLoginMessage(response.data.message);
       }
     } catch (error) {
-      // setIsLoggedIn(false);
-      const codigoError = error.response.status;
-      const responseText = JSON.parse(error.request.responseText).message;
-      switch (codigoError) {
-        case 401:
-          console.error(error);
-          // setIsLoggedIn(false);
-          setLoginMessage(responseText);
-          break;
-        case 404:
-          console.error(error);
-          // setIsLoggedIn(false);
-          setLoginMessage(responseText);
-          break;
-        case 400:
-          console.error(error);
-          // setIsLoggedIn(false);
-          setLoginMessage(responseText);
-          break;
-
-        default:
-          console.error(error);
-          setLoginMessage("Error conectando al servidor!");
-          break;
-      }
+      const responseText = JSON.parse(error.request.responseText).message; //Obtiene el mensaje de respuesta desde el servidor y lo almacena en la variable
+      console.error(error);
+      setLoginMessage(responseText);
     }
   };
 
   return (
     <div>
+      <h1>Login</h1>
       <form onSubmit={handleLogin}>
         <label>
           Usuario:
