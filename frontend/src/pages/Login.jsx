@@ -1,39 +1,55 @@
-import { useState, useEffect } from "react";
-import LoginForm from "../components/LoginForm";
-import Dashboard from "../components/Dashboard";
+import { useState, useEffect} from "react";
+import axios from "axios";
+import {LoginForm} from "../components/LoginForm";
+import {Dashboard} from "../components/Dashboard";
+import { LoaderPage } from "../components/LoaderPage";
 
-const Login = () => {
-  const [authData, setAuthData] = useState({
-    isLogged: false,
-    isTokenStored: false,
-  });
+export const Login = () => {
+  
+  const [logged, setLogged] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  const checkTokenValidity = (newToken) => {
-    const isValidToken = newToken !== "" && newToken.length > 30;
-    setAuthData({
-      ...authData,
-      isLogged: isValidToken,
-    });
+  const getData = (dataReceived) => {
+    setLogged(dataReceived.userData.authorized);
   };
 
   useEffect(() => {
-    const fetchToken = localStorage.getItem("token");
-    const isNullToken = fetchToken === null;
-    setAuthData({
-      ...authData,
-      isTokenStored: !isNullToken,
-      isLogged: !isNullToken,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authData.isTokenStored]);
+    const token = localStorage.getItem('token');
+    const tokenVerification = async (tkn) => {
+      try {
+        const response = await axios.post("http://localhost/kalanailsMenu/backendPHP/validation.php", 
+          {token: tkn});
+         
+          if (response.status === 200 && response.data.message == 'token verificado') {
+            const token1 = response.data.dbToken;
+            const token2 = response.data.token;
+            if (token1 === token2) {
+              setLogged(true);
+            }
+          }
+      }
+      catch (error) {
+        setLogged(false);
+      }
+      finally {
+        setLoaded(true);
+      }
+    }
+    if (token != null) {
+      tokenVerification(token);
+    } else {
+      setLoaded(true);
+    }
+  }, []);
 
-  const { isLogged } = authData;
-
-  return (
-    <>
-      {!isLogged ? <LoginForm sendToken={checkTokenValidity} /> : <Dashboard />}
-    </>
-  );
+  return <>
+  {!loaded
+  ? <LoaderPage/>
+  : <div>
+    {!logged
+    ? <LoginForm sendData={getData} /> 
+    : <Dashboard />}
+  </div>
+  }
+  </>;
 };
-
-export default Login;

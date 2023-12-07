@@ -1,10 +1,9 @@
-// import { redirect } from "react-router-dom";
-
-const Dashboard = () => {
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        window.location.reload(true);
-    }
+export const Dashboard = () => {
+  
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.reload(true);
+  }
 
   return (
     <>
@@ -14,4 +13,3 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
