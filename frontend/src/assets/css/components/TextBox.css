@@ -1,0 +1,9 @@
+.dialog_textBox {
+    border: 1px solid red;
+    border-radius: var(--md);
+    padding: var(--ld);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}

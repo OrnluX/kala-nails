@@ -1,0 +1,13 @@
+.new_product_form {
+    background-color: rgb(187, 50, 130);
+    max-width: 400px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--xl);
+}
+
+.new_product_form label {
+    display: flex;
+    justify-content: space-around;
+}

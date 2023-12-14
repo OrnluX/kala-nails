@@ -3,28 +3,23 @@ header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-require_once 'vendor/autoload.php'; // Importar Dotenv y JWT
+require_once '../vendor/autoload.php'; // Importar Dotenv y JWT
+use Firebase\JWT\JWT; // Biblioteca JWT (JSON Web Token)
+use Firebase\JWT\Key;
 use Dotenv\Dotenv; //Biblioteca dotenv para variables de entorno
-
-$dotenv = Dotenv::createImmutable(__DIR__ . '/config');//Ruta variables de entorno.
+$dotenv = Dotenv::createImmutable(__DIR__ . '/');//Ruta variables de entorno.
 $dotenv->load(); //Inicialización de dotenv
 
-require_once 'conection.php'; // Conexión a la base de datos
-$conn = testConexion();
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Obtener datos del cuerpo de la solicitud
     $data = json_decode(file_get_contents("php://input"));
     $token = $data->token; //Token enviado desde el cliente
-    
-    if ($token ) {
-        $query = "SELECT token FROM usuarios WHERE token = :token";
-        $stmt = $conn->prepare($query);
-        $stmt->bindParam(':token', $token);
-        $stmt->execute();
-        $verifiedToken = $stmt->fetch(PDO::FETCH_ASSOC); //Token almacenado en DB, correspondiente al usuario
-
-        if ($verifiedToken) {
+    $secretKey = $_ENV['SECRET_KEY'];
+    $decodedToken = JWT::decode($token, new Key($secretKey, 'HS256'));
+    $decodedToken = JWT::decode($token, new Key($secretKey, 'HS256'), $headers = new stdClass());
+        if ($decodedToken) {
             http_response_code(200);
             echo json_encode(array(
                 "message" => "token verificado",
@@ -38,5 +33,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(500);
         echo json_encode(array("message" => "error token cliente"));
     }
-}
+
 ?>

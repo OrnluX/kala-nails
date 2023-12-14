@@ -1,0 +1,22 @@
+.table-header_row{
+    background-color: rgb(114, 83, 120);
+}
+.table-header_colum {
+    padding: var(--sm);
+}
+.table-product_info{
+    padding: var(--md);
+}
+
+.table-img_container{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+.table-product_img {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+

@@ -7,11 +7,13 @@ export function LoginForm({sendData}) {
   const [password, setPassword] = useState("");
   const [loginMessage, setLoginMessage] = useState("");
 
+  const siteURL = "http://localhost/kalanailsmenu"
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost/kalanailsmenu/backendPHP/login.php",
+        `${siteURL}/backendPHP/login.php`,
         {
           username: username,
           password: password,
