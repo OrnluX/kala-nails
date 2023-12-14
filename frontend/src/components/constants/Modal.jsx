@@ -22,6 +22,10 @@ export const Modal = ({show, handleClose}) => {
                 Precio:
                 <input type="number" id="product_price" />
             </label>
+            <label htmlFor="product_img">
+                Imagen
+                <input type="file" id="product_img" />
+            </label>
 
         </form>
     </div>

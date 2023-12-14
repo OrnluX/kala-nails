@@ -8,14 +8,14 @@ export const Table = ({data}) => {
     const [showTextBox, setShowTextBox] = useState(false);
     const [deleteElement, setElementDelete] = useState(null);
 
-    /**Función que se le pasa como prop al componente TextBox para manejar el click en el botón de cancelar (referente a eliminar un producto o no). Setea el estado de visibilidad de dicho componente hijo.
+    /**Función que se pasa como prop al componente TextBox para manejar el click en el botón de cancelar (referente a eliminar un producto o no). Setea el estado de visibilidad de dicho componente hijo.
      * @return VOID
      */
     const handleCancellBtn = () => {
         setShowTextBox(false);
     }
 
-    /**Función que se le pasa como prop al componente TableBtn para manejar el evento "click" del botón de eliminar producto. Recibe la información del producto que se desea eliminar y almacena dicha información en un estado "deleteElement"
+    /**Función que se pasa como prop al componente TableBtn para manejar el evento "click" del botón de eliminar producto. Recibe la información del producto que se desea eliminar y almacena dicha información en un estado "deleteElement"
      * @param OBJECT elementInfo
      * @return VOID
     */
