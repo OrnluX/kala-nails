@@ -56,6 +56,7 @@ h3 {
   height: 100%;
   left: 0;
   top: 0;
+  display: flex;
 }
 
 button {
@@ -71,11 +72,14 @@ button {
 }
 
 button.redBtn {
-  background-color: red;
+  background-color: rgb(187, 64, 64);
+  max-width: 60%;
 }
 
 button.greenBtn {
-  background-color: green;
+  background-color: rgb(56, 150, 56);
+  max-width: 60%;
+
 }
 
 button:hover {

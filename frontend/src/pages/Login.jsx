@@ -1,6 +1,6 @@
 import { LoginForm } from "../components/LoginForm";
 import { Dashboard } from "../components/Dashboard";
-import { LoaderPage } from "../components/LoaderPage";
+import { LoaderPage } from "../components/constants/LoaderPage";
 import { useState, useEffect } from "react";
 import axios from "axios";
 

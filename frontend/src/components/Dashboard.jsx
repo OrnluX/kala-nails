@@ -1,4 +1,4 @@
-import { LoaderPage } from "./LoaderPage";
+import { LoaderPage } from "./constants/LoaderPage";
 import { Table } from "./Table";
 import { AddProduct } from "./AddProduct";
 import { Modal } from "./constants/Modal";
