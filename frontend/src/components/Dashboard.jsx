@@ -1,7 +1,5 @@
 import { LoaderPage } from "./constants/LoaderPage";
-import { Table } from "./Table";
-import { AddProduct } from "./AddProduct";
-import { Modal } from "./constants/Modal";
+import { TableController } from "./TableController";
 import { useState ,useEffect } from "react";
 import axios from 'axios';
 import '../assets/css/components/Dashboard.css'
@@ -11,16 +9,7 @@ const siteUrl = "http://localhost/kalanailsmenu";
 export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  
-  const handleOpenModal = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-  };
-
+ 
   useEffect(()=>{
     const getData = async () => {
       try {
@@ -38,11 +27,6 @@ export const Dashboard = () => {
     getData();
   },[])
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem('token');
-  //   window.location.reload(true);
-  // }
-
   return (
     <>  
         <h1>Dashboard</h1>
@@ -50,14 +34,11 @@ export const Dashboard = () => {
           loading ? (
             <LoaderPage/>
           ) : (
-            <>
-              <Table data={products}/>
-              <AddProduct showModal={handleOpenModal}/>
-              <Modal show={showModal} handleClose={handleCloseModal} />
-            </>
+          
+            <TableController data={products}/>
+            
           )
         }
-        {/* <button onClick={handleLogout}>Cerrar sesión</button> */}
     </>
   )
 }
