@@ -1,7 +1,7 @@
-import { Table } from './Table';
-import { TextBox } from './TextBox';
-import { AddProduct } from "./AddProduct";
-import { Modal } from "./constants/Modal";
+import { Table } from '../components/Table';
+import { TextBox } from '../components/TextBox';
+import { AddProduct } from "../components/AddProduct";
+import { Modal } from "../components/constants/Modal";
 import { useEffect, useState } from 'react';
 
 import '../assets/css/components/Table.css';

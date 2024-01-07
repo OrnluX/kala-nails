@@ -34,8 +34,9 @@ function sanitizeData ($data) {
 }
 
 /**
- * Función que maneja la consulta para traer todos los productos de la DB. Método GET. Imprime el mensaje de respuesta al cliente en formato JSON con todos los productos existentes.
+ * Función que maneja la petición para traer todos los productos de la DB. Método GET. Imprime el mensaje de respuesta al cliente en formato JSON con todos los productos existentes.
  * @param OBJECT $connection
+ * @return VOID
  */
 function getProducts($connection) {
     $query = "SELECT * FROM productos";
@@ -52,8 +53,9 @@ function getProducts($connection) {
 }
 
 /**
- * Función que maneja las consultas que permiten ingresar productos a la DB. Método POST. Imprime el mensaje de respuesta al cliente si el producto fue cargado con éxito.
+ * Función que maneja las peticiones que permiten ingresar productos a la DB. Método POST. Imprime el mensaje de respuesta al cliente si el producto fue cargado con éxito.
  * @param OBJECT $connection
+ * @return VOID
  */
 function postProducts($connection) {
     try {
@@ -91,9 +93,9 @@ function postProducts($connection) {
 }
 
 /**
- * Función que maneja las consultas que permiten editar productos a la DB. Método PUT. 
- * @param INT $id
+ * Función que maneja las peticiones que permiten editar productos en la DB. Método PUT. Imprime el mensaje de respuesta al cliente si el producto fue editado con éxito.
  * @param OBJECT $connection
+ * @return VOID
  */
 function editProducts($connection) {
     try {
@@ -136,6 +138,38 @@ function editProducts($connection) {
     }
 }
 
+/**
+ * Función que maneja las peticiones que permiten eliminar un producto de la DB. Imprime el mensaje de respuesta al cliente si el producto fue eliminado con éxito.
+ * @param OBJECT $connection
+ * @return VOID
+ */
+function deleteProducts($connection) {
+    try {
+        $data = json_decode(file_get_contents("php://input"));
+        $id = $data->id; //Obtenemos el ID del producto a editar. No es necesario validar, el cliente no tiene acceso a editarlo.
+
+        //Preparamos la consulta
+        $query = "DELETE FROM productos WHERE id = :id";
+        $stmt = $connection->prepare($query);
+
+        //Bind params
+        $stmt->bindParam(':id', $id);
+
+        //Ejecutar la consulta
+        $stmt->execute();
+
+        http_response_code(200);
+        echo json_encode(array(
+            "message" => "Producto eliminado correctamente!"
+        ));
+    }
+    catch (Exception $e) {
+        echo json_encode(array(
+            "message" => $e->getMessage()
+        ));
+    }
+}
+
 //PROGRAMA PRINCIPAL
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: Content-Type");
@@ -161,7 +195,7 @@ switch ($method) {
         editProducts($conn);
         break;
     case 'DELETE':
-        echo "DELETE";
+        deleteProducts($conn);
         break;
     
     default:

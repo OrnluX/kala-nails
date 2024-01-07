@@ -1,5 +1,5 @@
 import { LoaderPage } from "./constants/LoaderPage";
-import { TableController } from "./TableController";
+import { TableController } from "../controllers/TableController";
 import { useState ,useEffect } from "react";
 import axios from 'axios';
 import '../assets/css/components/Dashboard.css'
