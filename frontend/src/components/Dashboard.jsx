@@ -8,7 +8,17 @@ const siteUrl = "http://localhost/kalanailsmenu";
 
 export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState({});
+  const [dataChanged, setDataChanged] = useState(false);
+
+  /** 
+   * Función que se pasa como prop al componente TableController para "escuchar" si hay cambios en los datos.
+   * @return VOID
+  */
+  const onDataChange = () => {
+    setDataChanged(!dataChanged);
+  }
+  
  
   useEffect(()=>{
     const getData = async () => {
@@ -25,7 +35,7 @@ export const Dashboard = () => {
       }
     }
     getData();
-  },[])
+  },[dataChanged]);
 
   return (
     <>  
@@ -35,7 +45,7 @@ export const Dashboard = () => {
             <LoaderPage/>
           ) : (
           
-            <TableController data={products}/>
+            <TableController dataAsChanged={onDataChange} data={products}/>
             
           )
         }

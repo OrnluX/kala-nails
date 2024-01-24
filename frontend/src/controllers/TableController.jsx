@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import '../assets/css/components/Table.css';
 
-export const TableController = ({data}) => {
+export const TableController = ({dataAsChanged, data}) => {
     const [showTextBox, setShowTextBox] = useState(false);
     const [deleteElement, setElementDelete] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -53,10 +53,18 @@ export const TableController = ({data}) => {
         <>  
             <Table products={data} handleElement={handleElementInfo}/>
             <AddProduct showModal={handleOpenModal}/>
-            <Modal show={showModal} handleClose={handleCloseModal} />
+            <Modal 
+                show={showModal} 
+                handleClose={handleCloseModal} 
+                dataChanged={dataAsChanged}
+            />
             {
                 showTextBox
-                ? (<TextBox elementToDelete={deleteElement} cancellDelete={handleCancellBtn} />)
+                ? (<TextBox 
+                        elementToDelete={deleteElement} 
+                        closeTextBox={handleCancellBtn}
+                        dataChanged={dataAsChanged}
+                />)
                 : (null)
             }
         </>

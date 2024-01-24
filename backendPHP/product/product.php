@@ -1,36 +1,82 @@
 <?php
 /**
- * Modulo que recibe un input de datos, verifica y sanitiza las variables. Devuelve un arreglo asociativo con los datos.
+ * Módulo que maneja la subida de imágenes al server vía POST
+ * @param STRING $img
+ * @return STRING
+ */
+function handleImages($img) {
+    //STRING $imagen, $target_dir
+    $imagen = "http://localhost/kalanailsmenu/backendPHP/product/uploads/";
+    try {
+        if (strlen($img) > 0) {
+            if (filter_var($img, FILTER_SANITIZE_URL) && filter_var($img,FILTER_VALIDATE_URL)) {
+                $imagen = $img;
+            }
+            else {
+                throw new Exception("Debe ingresar una URL válida");
+            }
+        } else if (strlen($img) == 0 && isset($_FILES["imgFile"])) {
+            if ($_FILES["imgFile"]["error"] == 0) {
+                $target_dir = __DIR__ . "/uploads/" ; //Directorio donde se almacenará la imagen
+                $target_file = $target_dir . basename($_FILES["imgFile"]["name"]);
+                
+                if (move_uploaded_file($_FILES["imgFile"]["tmp_name"], $target_file)) {
+                    $imagen = $imagen . basename($_FILES["imgFile"]["name"]);
+                } else {
+                    throw new Exception("Error al mover el archivo!");
+                }
+            } 
+            else {
+                throw new Exception("Error al subir el archivo. Intente nuevamente");
+            }
+        }
+        else {
+            throw new Exception("Por favor, proporcione una imagen para el producto");
+        }
+    
+        return $imagen;
+    
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo json_encode(array(
+        "message" => $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Módulo que recibe un input de datos, verifica y sanitiza las variables. Devuelve un arreglo asociativo con los datos.
  * @param OBJECT $data
  * @return ARRAY
  */
-function sanitizeData ($data) {
-     //Validamos y sanitizamos variables
-     $nombre = filter_var($data->nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-     $descripcion = filter_var($data->descripcion, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-     $precio = filter_var($data->precio, FILTER_VALIDATE_FLOAT);
-     $imagen = filter_var($data->imagen, FILTER_VALIDATE_URL);
+function sanitizeData($data) {
+    //Validamos y sanitizamos variables
+    $nameFormat ='/^[a-zA-Z][0-9a-zA-Z\h]*$/u'; //Formato que debe tener el string "nombre".
+    $nombre = filter_var($data->nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $descripcion = filter_var($data->descripcion, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $precio = filter_var($data->precio, FILTER_VALIDATE_FLOAT);
      
-     try {
-         if (empty($data->nombre) || empty($data->precio)) {
-             throw new Exception("Los campos son obligatorios");
-         } else if (!$precio) {
-             throw new Exception("El precio debe ser un número válido.");
-         } else {
+    try{
+        if (empty($data->nombre) || empty($data->precio)) {
+            throw new Exception("Faltan completar campos!");
+        } else if (!$precio) { 
+            throw new Exception("El precio debe ser un número válido");
+        } else if (!(preg_match($nameFormat, $nombre))) { //Validamos que el nombre no empiece con un número y/o un caracter especial.
+            throw new Exception("Debe ingresar un nombre válido");
+        }else {
             return array (
                 "nombre" => $nombre,
                 "descripcion" => $descripcion,
                 "precio" => $precio,
-                "imagen" => $imagen
             );
-         }
-     } catch (Exception $e) {
-         http_response_code(400);
-         echo json_encode(array(
-           "message" => $e->getMessage()
-         ));
-     } 
-
+        }
+        
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo json_encode(array(
+        "message" => $e->getMessage()
+        ));
+    } 
 }
 
 /**
@@ -46,10 +92,12 @@ function getProducts($connection) {
     if ($stmt) {
         $data=[];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $data[]=$row;
+            // Decodificar entidades HTML en cada valor del array
+            $decodedRow = array_map('html_entity_decode', $row);
+            $data[]=$decodedRow;
         }
         echo json_encode($data);
-    }
+    }   
 }
 
 /**
@@ -59,37 +107,48 @@ function getProducts($connection) {
  */
 function postProducts($connection) {
     try {
-        $data = json_decode(file_get_contents("php://input"));
-        $sanitizedData = sanitizeData($data);//Llamada a la funcion sanitizeData para validar los datos ingresados por el usuario
+
+        $data = new stdClass();
+        $data->nombre = $_POST['nombre'];
+        $data->descripcion = $_POST['descripcion'];
+        $data->precio = $_POST['precio'];
+        $data->imagen = $_POST['imagen'];
         
-        $nombre = $sanitizedData["nombre"];
-        $descripcion = $sanitizedData["descripcion"];
-        $precio = $sanitizedData["precio"];
-        $imagen = $sanitizedData["imagen"];
+        $sanitizedData = sanitizeData($data);//Llamada a la funcion sanitizeData para validar los datos ingresados por el usuario.
+        
+        if (isset($sanitizedData)){
+            $nombre = $sanitizedData["nombre"];
+            $descripcion = $sanitizedData["descripcion"];
+            $precio = $sanitizedData["precio"];
+            
+            $imagen = handleImages($data->imagen); //Llamada a la función handeImages para manejar la subida de la imagen, o la URL de la misma.
+            
+            if(isset($imagen)) {
+                //Preparamos la consulta
+                $query = "INSERT INTO productos (nombre, descripcion, precio, imagen)
+                VALUES (:nombre, :descripcion, :precio, :imagen)";
+                $stmt = $connection->prepare($query);
 
-        //Preparamos la consulta
-        $query = "INSERT INTO productos (nombre, descripcion, precio, imagen)
-        VALUES (:nombre, :descripcion, :precio, :imagen)";
-        $stmt = $connection->prepare($query);
+                //Bind params
+                $stmt->bindParam(':nombre', $nombre);
+                $stmt->bindParam(':descripcion', $descripcion);
+                $stmt->bindParam(':precio', $precio);
+                $stmt->bindParam(':imagen', $imagen);
 
-        //Bind params
-        $stmt->bindParam(':nombre', $nombre);
-        $stmt->bindParam(':descripcion', $descripcion);
-        $stmt->bindParam(':precio', $precio);
-        $stmt->bindParam(':imagen', $imagen);
-
-        //Ejecutar consulta
-        $stmt->execute();
-
-        http_response_code(200);
-        echo json_encode(array(
-            "message" => "Producto cargado correctamente!"
-        ));
+                //Ejecutar consulta
+                $stmt->execute();
+                http_response_code(200);
+                echo json_encode(array(
+                    "message" => "Producto cargado correctamente!",
+                ));  
+            }
+        }
     } catch (Exception $e) {
+        http_response_code(400);
         echo json_encode(array(
             "message" => $e->getMessage()
         ));
-    }
+    } 
 }
 
 /**
@@ -139,14 +198,13 @@ function editProducts($connection) {
 }
 
 /**
- * Función que maneja las peticiones que permiten eliminar un producto de la DB. Imprime el mensaje de respuesta al cliente si el producto fue eliminado con éxito.
+ * Función que maneja las peticiones que permiten eliminar un producto de la DB. Método DELENTE. Imprime el mensaje de respuesta al cliente si el producto fue eliminado con éxito.
  * @param OBJECT $connection
  * @return VOID
  */
 function deleteProducts($connection) {
     try {
-        $data = json_decode(file_get_contents("php://input"));
-        $id = $data->id; //Obtenemos el ID del producto a editar. No es necesario validar, el cliente no tiene acceso a editarlo.
+        $id = $_GET['id']; //Obtenemos el ID del producto a editar. No es necesario validar, el cliente no tiene acceso a editarlo.
 
         //Preparamos la consulta
         $query = "DELETE FROM productos WHERE id = :id";
@@ -158,12 +216,17 @@ function deleteProducts($connection) {
         //Ejecutar la consulta
         $stmt->execute();
 
-        http_response_code(200);
-        echo json_encode(array(
-            "message" => "Producto eliminado correctamente!"
+        if (isset($id)) {
+            http_response_code(200);
+            echo json_encode(array(
+                "message" => "Producto eliminado correctamente!"
         ));
-    }
-    catch (Exception $e) {
+        } 
+        else {
+            throw new Exception("Error! Proporcione un ID correcto");
+        }
+    }catch (Exception $e) {
+        http_response_code(400);
         echo json_encode(array(
             "message" => $e->getMessage()
         ));
@@ -171,8 +234,9 @@ function deleteProducts($connection) {
 }
 
 //PROGRAMA PRINCIPAL
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:5173');
 header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 
 require_once '../vendor/autoload.php'; // Importar Dotenv y JWT
 use Dotenv\Dotenv; //Biblioteca dotenv para variables de entorno
