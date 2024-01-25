@@ -22,7 +22,14 @@ export const TableController = ({dataAsChanged, data}) => {
      * Función que modifica el estado de showModal a "true". Esto muestra la ventana modal.
      * @return VOID
      */
-    const handleOpenModal = () => {
+    const handleOpenModal = (content) => {
+        setModalContent((prevContent) => ({
+            ...prevContent,
+            productName: content.name,
+            productDescription: content.description,
+            productPrice: content.price,
+            productImgURL: content.imgURL,
+        }))
         setShowModal(true);
     };
     

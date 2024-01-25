@@ -3,7 +3,12 @@ import { useEffect, useState } from 'react';
 import '../../assets/css/components/Modal.css';
 import axios from 'axios';
 
-export const Modal = ({ handleClose, dataChanged}) => {
+export const Modal = ({ handleClose, dataChanged, content}) => {
+
+    const [initialContent, setInitialContent] = useState({
+        
+    })
+
     const [productData, setProductData] = useState({
         productName: '',
         description: '',
