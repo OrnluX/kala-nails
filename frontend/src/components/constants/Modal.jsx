@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import '../../assets/css/components/Modal.css';
 import axios from 'axios';
 
-export const Modal = ({show, handleClose, dataChanged}) => {
+export const Modal = ({ handleClose, dataChanged}) => {
     const [productData, setProductData] = useState({
         productName: '',
         description: '',
@@ -13,8 +13,6 @@ export const Modal = ({show, handleClose, dataChanged}) => {
     });
 
     const [responseStatus, setResponseStatus] = useState(0);
-
-    const showHideClassName = show ? 'modal display-block' : 'modal display-none';
     
     const siteURL = "http://localhost/kalanailsmenu";
 
@@ -52,7 +50,7 @@ export const Modal = ({show, handleClose, dataChanged}) => {
     }, [responseStatus]);
 
   return (
-    <div className={showHideClassName}>
+    <div>
         <div className="overlay">
             <form 
                 className='new_product_form' 

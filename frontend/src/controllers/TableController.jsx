@@ -10,6 +10,13 @@ export const TableController = ({dataAsChanged, data}) => {
     const [showTextBox, setShowTextBox] = useState(false);
     const [deleteElement, setElementDelete] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [modalContent, setModalContent] = useState({
+        productName: '',
+        productDescription: '',
+        productPrice: 0,
+        productImgURL: '',
+        productImgFile: null,
+    });
 
     /**
      * Función que modifica el estado de showModal a "true". Esto muestra la ventana modal.
@@ -53,11 +60,16 @@ export const TableController = ({dataAsChanged, data}) => {
         <>  
             <Table products={data} handleElement={handleElementInfo}/>
             <AddProduct showModal={handleOpenModal}/>
-            <Modal 
-                show={showModal} 
-                handleClose={handleCloseModal} 
-                dataChanged={dataAsChanged}
-            />
+            {
+                showModal
+                ? (<Modal 
+                    content={modalContent} //Contenido de la ventana modal
+                    show={showModal} 
+                    handleClose={handleCloseModal} 
+                    dataChanged={dataAsChanged}
+                />)
+                :(null)
+            }
             {
                 showTextBox
                 ? (<TextBox 
