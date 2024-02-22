@@ -6,7 +6,7 @@ import axios from 'axios';
 export const Modal = ({ handleClose, dataChanged, content}) => {
 
     const [initialContent, setInitialContent] = useState({
-        
+
     })
 
     const [productData, setProductData] = useState({
@@ -21,7 +21,7 @@ export const Modal = ({ handleClose, dataChanged, content}) => {
     
     const siteURL = "http://localhost/kalanailsmenu";
 
-    const handleSubmit = async (e)=> { //Funcion que maneja el evento submit del formulario
+    const handleSubmit = async (e)=> { //Función que maneja el evento submit del formulario.
         e.preventDefault();
         try {
             const formData = new FormData();
